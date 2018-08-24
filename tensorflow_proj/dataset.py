@@ -79,7 +79,7 @@ class DataSet(object):
         self._index_in_epoch += batch_size
         
         if self._index_in_epoch > self._num_examples:   #images.shape[0] #if one epoch is completed, reset for next epoch
-            #Udfate after each epoch
+            #Update after each epoch
             self._epochs_done += 1
             start = 0
             self._index_in_epoch = batch_size
@@ -89,31 +89,32 @@ class DataSet(object):
         
         return self._images[start:end], self._labels[start:end], self._img_names[start:end], self._cls[start:end]
     
-    def read_train_sets(self, train_path, image_size, classes, validation_size):
-        class DataSets(object):         #??????????????
-            pass
-        data_sets = DataSet()
+def read_train_sets(train_path, image_size, classes, validation_size):
+    class DataSets(object):      #make class DataSet usable in this method but do nothing (pass) after initialization
+        pass       
+    
+    data_sets = DataSet()
+    
+    images, labels, img_names, cls = load_train(train_path, image_size, classes)
+    #Shuffle arrays or sparse matrices in a consistent way
+    images, labels, img_names, cls = shuffle(images, labels, img_names, cls)        #??????????????
+    
+    if isinstance(validation_size, float):
+        validation_size = int(validation_size * images.shape[0])
         
-        images, labels, img_names, cls = load_train(train_path, image_size, classes)
-        #Shuffle arrays or sparse matrices in a consistent way
-        images, labels, img_names, cls = shuffle(images, labels, img_names, cls)        #??????????????
-        
-        if isinstance(validation_size, float):
-            validation_size = int(validation_size * images.shape[0])
-            
-        #Validation images: last 20% of images
-        validation_images = images[:validation_size]    
-        validation_labels = labels[:validation_size]
-        validation_img_names = img_names[:validation_size]
-        validation_cls = cls[:validation_size]
-        
-        #Train images: first 80% of images
-        train_images = images[validation_size:]
-        train_labels = labels[validation_size:]
-        train_img_names = img_names[validation_size:]
-        train_cls = cls[validation_size:]
-        
-        data_sets.train = DataSet(train_images, train_labels, train_img_names, train_cls)
-        data_sets.valid = DataSet(validation_images, validation_labels, validation_img_names, validation_cls)
-        
-        return data_sets
+    #Validation images: last 20% of images
+    validation_images = images[:validation_size]    
+    validation_labels = labels[:validation_size]
+    validation_img_names = img_names[:validation_size]
+    validation_cls = cls[:validation_size]
+    
+    #Train images: first 80% of images
+    train_images = images[validation_size:]
+    train_labels = labels[validation_size:]
+    train_img_names = img_names[validation_size:]
+    train_cls = cls[validation_size:]
+    
+    data_sets.train = DataSet(train_images, train_labels, train_img_names, train_cls)
+    data_sets.valid = DataSet(validation_images, validation_labels, validation_img_names, validation_cls)
+    
+    return data_sets
