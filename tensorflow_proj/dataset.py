@@ -1,3 +1,6 @@
+#dataset is a class created to read the input dataset. 
+#This is a simple python code that reads images from the provided training and testing dataset folders.
+
 import cv2
 import os
 import glob
@@ -5,7 +8,7 @@ from sklearn.utils import shuffle
 import numpy as np
 
 
-def load_train(train_path, image_size, classes):
+def load_train(train_path, image_size, classes):    #classes = [dogs, cats]  #list
     images = []
     labels = []
     img_names = []
@@ -13,23 +16,42 @@ def load_train(train_path, image_size, classes):
     
                     #READ AND RESIZE IMAGE USING OPENCV
     print('Going to read training images')
-    for fields in classes:   
+    for fields in classes:   #fields = cats or dogs
+        
+        #Understanding index
+        """
+        classes = ['cats', 'dogs']
+        
+        print "Index for dogs : ", classes.index( 'dogs' ) 
+        >>> Index for dogs :  1
+        """
+        
         index = classes.index(fields)
         print('Now going to read {} files (Index: {})'.format(fields, index))
         path = os.path.join(train_path, fields, '*g')
-        files = glob.glob(path)
+        files = glob.glob(path)     #makes a list of every imagepath of class "field: i.e cat or dog" (that ends with g i.e .jpg)
+        
         for fl in files:
+            #Read the images and set label
             image = cv2.imread(fl)
             image = cv2.resize(image, (image_size, image_size),0,0, cv2.INTER_LINEAR)
             image = image.astype(np.float32)
-            image = np.multiply(image, 1.0 / 255.0)
-            images.append(image)
+            image = np.multiply(image, 1.0 / 255.0)     #convert to RGB
+            
+            images.append(image)    #add it to list of all images in this field (i.e cat or dog)
             label = np.zeros(len(classes))
-            label[index] = 1.0
+            label[index] = 1.0      #so when we train cats, the label for cats = 1 and dogs = 0, and vice versa
+            
             labels.append(label)
-            flbase = os.path.basename(fl)
+            flbase = os.path.basename(fl)   #???  #Return the base name of pathname fl. This is the second element of the pair returned by passing fl to the function split(). 
+                                            #Note that the result of this function is different from the Unix basename program; where basename for '/foo/bar/' returns 'bar', 
+                                            #the basename() function returns an empty string ('').
+                                            
+                                            #in this case e.g.: cat.110.jpg
+                            
             img_names.append(flbase)
             cls.append(fields)
+            
     images = np.array(images)
     labels = np.array(labels)
     img_names = np.array(img_names)
@@ -41,7 +63,7 @@ def load_train(train_path, image_size, classes):
 class DataSet(object):
     
     def __init__(self, images, labels, img_names, cls):
-        self._num_examples = images.shape[0]
+        self._num_examples = images.shape[0]    #gives number of images used in the batch
         
         self._images = images
         self._labels = labels
