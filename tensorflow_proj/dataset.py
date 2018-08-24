@@ -10,7 +10,8 @@ def load_train(train_path, image_size, classes):
     labels = []
     img_names = []
     cls = []
-
+    
+                    #READ AND RESIZE IMAGE USING OPENCV
     print('Going to read training images')
     for fields in classes:   
         index = classes.index(fields)
@@ -99,7 +100,7 @@ def read_train_sets(train_path, image_size, classes, validation_size):
     #Shuffle arrays or sparse matrices in a consistent way
     images, labels, img_names, cls = shuffle(images, labels, img_names, cls)        #??????????????
     
-    if isinstance(validation_size, float):
+    if isinstance(validation_size, float):      #if validation_size is of type float
         validation_size = int(validation_size * images.shape[0])
         
     #Validation images: last 20% of images

@@ -15,7 +15,7 @@ seed(1)
 from tensorflow import set_random_seed
 set_random_seed(2)
 
-
+                    #DEFINE PARAMETERS
 batch_size = 32
 
 #Prepare input data
@@ -58,6 +58,7 @@ num_filters_conv3 = 64
 fc_layer_size = 128
 
 
+                    #DEFINE METHODS FOR NETWORK
 #initialize weights as normal distributions
 def create_weights(shape):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05))
@@ -91,7 +92,6 @@ def create_convolutional_layer(input, num_input_channels, conv_filter_size, num_
     return layer
 
 def create_flatten_layer(layer):
-    
     #The output of a conv layer is a multi-dimensional Tensor. We want to convert this into a one-dim tensor.  
     #We simply use the reshape operation to create a single dimensional tensor as defined below:
     
@@ -109,7 +109,6 @@ def create_flatten_layer(layer):
     return layer
 
 def create_fc_layer(input, num_inputs, num_outputs, use_relu=True):
-    
     #Define trainable weights and biases for FC layer
     weights = create_weights(shape=[num_inputs, num_outputs])
     biases = create_biases(num_outputs)
@@ -178,14 +177,32 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
 
     
 total_iterations = 0
-
 saver = tf.train.Saver()    #
-def train(num_iterations):
+def train(num_iteration):
     
     global total_iterations
     
-    for i in range(total_iterations, total_iterations + num_iterations):
-        x_batch, y_true_batch, _, cls_batch
+    for i in range(total_iterations, total_iterations + num_iteration):
+        x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
+        x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(batch_size)
+        
+        feed_dict_tr = {x: x_batch,
+                        y_true: y_true_batch}
+        
+        feed_dict_val = {x: x_valid_batch,
+                        y_true: y_valid_batch}
+        
+        sess.run(optimizer, feed_dict=feed_dict_tr)
+        
+        if i % int(data.train.num_examples / batch_size) == 0:
+            val_loss = sess.run(cost, feed_dict = feed_dict_val)
+            epoch = int(i / int(data.train.num_examples/batch_size))
+            
+            show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
+            saver.save(sess, 'dog-cats-predict_others')
+            
+    total_iterations += num_iteration
 
-
+                #RUN NETWORK
+train(num_iteration = 3000)
 
