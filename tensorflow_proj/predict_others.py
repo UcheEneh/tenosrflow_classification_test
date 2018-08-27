@@ -12,7 +12,7 @@ filename = dir_path +'/' +image_path
 
 image_size=128
 num_channels=3
-images = [] 
+images = []
         
         #PREPROCESSING: READ AND RESIZE IMAGE USING OPENCV
 # Reading the image using OpenCV
@@ -55,4 +55,4 @@ feed_dict_testing = {x: x_batch, y_true:y_test_images}
 result = sess.run(y_pred, feed_dict=feed_dict_testing)
 
 #result is of this format: [probability_of_sunflower]
-print(result)
+print(result) 
