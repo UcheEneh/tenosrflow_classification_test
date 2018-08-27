@@ -56,3 +56,4 @@ result = sess.run(y_pred, feed_dict=feed_dict_testing)
 
 #result is of this format: [probability_of_sunflower]
 print(result) 
+
