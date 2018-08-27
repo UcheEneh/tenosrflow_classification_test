@@ -12,7 +12,7 @@ filename = dir_path +'/' +image_path
 
 image_size=128
 num_channels=3
-images = []
+images = [] 
         
         #PREPROCESSING: READ AND RESIZE IMAGE USING OPENCV
 # Reading the image using OpenCV
