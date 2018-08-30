@@ -23,7 +23,7 @@ def load_train(train_path, image_size, classes):    #classes = [dogs, cats]  #li
         classes = ['cats', 'dogs']
         
         print "Index for dogs : ", classes.index( 'dogs' ) 
-        >>> Index for dogs :  1
+        >>> Index for dogs :  1 
         """
         
         index = classes.index(fields)

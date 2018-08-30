@@ -13,5 +13,5 @@ classes = os.listdir('training_data')
 num_classes = len(classes)
 
 print(classes)
-print("")
+print("") 
 print(num_classes)

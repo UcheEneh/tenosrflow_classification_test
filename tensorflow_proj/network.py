@@ -118,7 +118,7 @@ def create_fc_layer(input, num_inputs, num_outputs, use_relu=True):
     if use_relu:
         layer = tf.nn.relu(layer)
         
-    return layer
+    return layer 
 
 
                         #CREATE NETWORK
