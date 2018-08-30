@@ -30,7 +30,7 @@ train_path = 'training_data'
 
 
 #Load all the training and validation images and labels into memory using openCV
-data =dataset.read_train_sets(train_path, img_size, classes, validation_size=validation_size)
+data = dataset.read_train_sets(train_path, img_size, classes, validation_size=validation_size)
 
 
 print("Complete reading input data. Will Now print a snippet of it")
@@ -75,7 +75,7 @@ def create_convolutional_layer(input, num_input_channels, conv_filter_size, num_
     layer = tf.nn.conv2d(input=input, filter=weights, strides=[1, 1, 1, 1], padding='SAME')
     #SAME means we shall 0 pad the input such a way that output x,y dimensions are same as that of input.
     #stride: [batch_stride, x_stride, y_stride, depth_stride] 
-    #batch_stride and depth_stride are always 1 as you don’t want to skip images in your batch and along the depth. 
+    #batch_stride and depth_stride are always 1 as you don't want to skip images in your batch and along the depth.
     
     #Add biases after convolution 
     layer += biases 
@@ -178,6 +178,7 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     
 total_iterations = 0
 saver = tf.train.Saver()    #
+
 def train(num_iteration):
     
     global total_iterations
@@ -196,10 +197,10 @@ def train(num_iteration):
         
         if i % int(data.train.num_examples / batch_size) == 0:
             val_loss = sess.run(cost, feed_dict = feed_dict_val)
-            epoch = int(i / int(data.train.num_examples/batch_size))
+            epoch = int(i / int(data.train.num_examples/batch_size))        
             
             show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
-            saver.save(sess, 'dog-cats-predict_others')
+            saver.save(sess, './' + 'dogs-cats-model')
             
     total_iterations += num_iteration
 

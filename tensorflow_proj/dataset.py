@@ -16,7 +16,7 @@ def load_train(train_path, image_size, classes):    #classes = [dogs, cats]  #li
     
                     #READ AND RESIZE IMAGE USING OPENCV
     print('Going to read training images')
-    for fields in classes:   #fields = cats or dogs
+    for fields in classes:   #fields = cats, dogs
         
         #Understanding index
         """
@@ -56,6 +56,11 @@ def load_train(train_path, image_size, classes):    #classes = [dogs, cats]  #li
     labels = np.array(labels)
     img_names = np.array(img_names)
     cls = np.array(cls)
+    
+    print(images.shape)
+    print(labels.shape)
+    print(img_names.shape)
+    print(cls.shape)
 
     return images, labels, img_names, cls
 
@@ -106,21 +111,22 @@ class DataSet(object):
             self._epochs_done += 1
             start = 0
             self._index_in_epoch = batch_size
-            assert batch_size <= self._num_examples #images.shape[0] is the total number of images in the data 
+            assert batch_size <= self._num_examples #_num_examples = images.shape[0] which is the total number of images in the data 
 
         end = self._index_in_epoch
         
         return self._images[start:end], self._labels[start:end], self._img_names[start:end], self._cls[start:end]
     
 def read_train_sets(train_path, image_size, classes, validation_size):
-    class DataSets(object):      #make class DataSet usable in this method but do nothing (pass) after initialization
-        pass       
+    class DataSets(object):      #make class DataSets usable in this method but do nothing (pass) after initialization
+        pass                    ### NOTE. DIFFERENT FROM DataSet
     
-    data_sets = DataSet()
+    data_sets = DataSets()
     
     images, labels, img_names, cls = load_train(train_path, image_size, classes)
-    #Shuffle arrays or sparse matrices in a consistent way
-    images, labels, img_names, cls = shuffle(images, labels, img_names, cls)        #??????????????
+    #Shuffle data so that we don't have an array of all cats first then dogs
+    #shuffle: Shuffle arrays or sparse matrices in a consistent way (so images and their specific labels, img_name and cls would still be together after shuffle)
+    images, labels, img_names, cls = shuffle(images, labels, img_names, cls)        
     
     if isinstance(validation_size, float):      #if validation_size is of type float
         validation_size = int(validation_size * images.shape[0])
