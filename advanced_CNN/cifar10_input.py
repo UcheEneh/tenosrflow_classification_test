@@ -25,8 +25,8 @@ def read_cifar10(filename_queue):
     
     """Reads and parses examples from CIFAR10 data files.
     
-      Recommendation: if you want N-way read parallelism, call this function N times.  This will give you N independent Readers reading different
-      files & positions within those files, which will give better mixing of examples.
+      Recommendation: if you want N-way read parallelism, call this function N times.  This will give you N independent 
+      Readers reading different files & positions within those files, which will give better mixing of examples.
       
       Args:
         filename_queue: A queue of strings with the filenames to read from.
@@ -36,8 +36,7 @@ def read_cifar10(filename_queue):
           height: number of rows in the result (32)
           width: number of columns in the result (32)
           depth: number of color channels in the result (3)
-          key: a scalar string Tensor describing the filename & record number
-            for this example.
+          key: a scalar string Tensor describing the filename & record number for this example.
           label: an int32 Tensor with the label in the range 0..9.
           uint8image: a [height, width, depth] uint8 Tensor with the image data
       """
@@ -48,7 +47,7 @@ def read_cifar10(filename_queue):
     
     # Dimensions of the images in the CIFAR-10 dataset.
     # See http://www.cs.toronto.edu/~kriz/cifar.html for a description of the input format.
-    label_bytes = 1  # 2 for CIFAR-100
+    label_bytes = 1  # 2 for CIFAR-100 (since label would go from 0 to 99)
     result.height = 32
     result.width = 32
     result.depth = 3
@@ -60,16 +59,22 @@ def read_cifar10(filename_queue):
     
     # Read a record, getting filenames from the filename_queue. 
     # No header or footer in the CIFAR-10 format, so we leave header_bytes and footer_bytes at their default of 0.
-    reader = tf.FixedLengthRecordReader(record_bytes = record_bytes)
-    result.key, value = reader.read(filename_queue)
+    reader = tf.FixedLengthRecordReader(record_bytes = record_bytes) 
+    #tf.FixedLengthRecordReader: Returns the next record (key, value) pair produced by a reader.
+    #Will dequeue a work unit from queue if necessary (e.g. when the Reader needs to start reading from a 
+    #new file since it has finished with the previous file).
+    
+    result.key, value = reader.read(filename_queue)     #value: image
     
     # Convert from a string to a vector of uint8 that is record_bytes long.
     record_bytes = tf.decode_raw(value, tf.uint8)
     
     # The first bytes represent the label, which we convert from uint8->int32.
     result.label = tf.cast(tf.strided_slice(record_bytes, [0], [label_bytes]), tf.int32)    #input, start, end, cast to int32
+    #strided_slice used to move across the 
     
-    # The remaining bytes after the label represent the image, which we reshape from [depth * height * width] to [depth, height, width].
+    # The remaining bytes after the label represent the image, which we reshape from [depth * height * width] to 
+    # [depth, height, width].
     depth_major = tf.reshape(tf.strided_slice(record_bytes, [label_bytes], [label_bytes + image_bytes]),    #input, start, end
                                                             [result.depth, result.height, result.width])    #cast to this
     
@@ -95,14 +100,19 @@ def _generate_image_and_label_batch(image, label, min_queue_examples, batch_size
     """
     
     #SHUFFLE IMAGES (OR NOT) AND ARRANGE INTO BATCHES
-    # Create a queue that shuffles the examples, and then read 'batch_size' images + labels from the example queue.
+    # Create a QUEUE that shuffles the examples, and then read 'batch_size' images + labels from the example queue.
     num_preprocess_threads = 16
     
+    #create batches of batch_size images and batch_size labels
     if shuffle:
-        images, label_batch = tf.train.shuffle_batch([image, label], batch_size = batch_size,       #shuffle data in a consistent way
+        #Creates batches by randomly shuffling tensors
+        images, label_batch = tf.train.shuffle_batch([image, label], batch_size = batch_size, #shuffle data in a consistent way
                                                      num_threads = num_preprocess_threads,
                                                      capacity = min_queue_examples + 3 * batch_size,
                                                      min_after_dequeue = min_queue_examples)
+        # capacity: The maximum number of elements in the queue.
+        # min_after_dequeue: Minimum number elements in the queue after a dequeue
+        # num_threads: The number of threads enqueuing tensor_list
     else:
         images, label_batch = tf.train.batch([image, label], batch_size = batch_size,
                                              num_threads = num_preprocess_threads,
@@ -130,7 +140,8 @@ def distorted_inputs(data_dir, batch_size):
         labels: Labels. 1D tensor of [batch_size] size.
     """
     
-    filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i) for i in xrange(1,6)]  #/path/data_batch_1, ... /path/data_batch_5
+    filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i) for i in xrange(1,6)]  
+            #= /path/data_batch_1, ... /path/data_batch_5
     
     for f in filenames:
         if not tf.gfile.Exists(f):  #Error if file not found
@@ -141,8 +152,8 @@ def distorted_inputs(data_dir, batch_size):
     Queue tutorial: 
         https://www.pythoncentral.io/use-queue-beginners-guide/
         
-        New: contrib_data
-            https://stackoverflow.com/questions/44549245/how-to-use-tensorflow-tf-train-string-input-producer-to-produce-several-epochs-d
+    New: contrib_data
+    https://stackoverflow.com/questions/44549245/how-to-use-tensorflow-tf-train-string-input-producer-to-produce-several-epochs-d
     """
     filename_queue = tf.train.string_input_producer(filenames)
     
@@ -164,7 +175,8 @@ def distorted_inputs(data_dir, batch_size):
         distorted_image = tf.image.random_flip_left_right(distorted_image)
         
         # Because these operations are not commutative, consider randomizing the order their operation.
-        # NOTE: since per_image_standardization zeros the mean and makes the stddev unit, this likely has no effect (see tensorflow#1458).
+        # NOTE: since per_image_standardization zeros the mean and makes the stddev unit, this likely has 
+        # no effect (see tensorflow#1458).
         distorted_image = tf.image.random_brightness(distorted_image, max_delta = 63)
         distorted_image = tf.image.random_contrast(distorted_image, lower = 0.2, upper = 1.2)
         
