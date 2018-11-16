@@ -37,3 +37,28 @@ def _build_vocab(filename):
     #hello appears 12 times and is the most appearing, so it gets id of 0,...
     
     return word_to_id
+
+def _file_to_word_ids(filename, word_to_id):
+    data = _read_words(filename)
+    
+    return [word_to_id[word] for word in data if word in word_to_id]    #return only words from data in word_to_id dict
+
+def ptb_raw_data(data_path=None):
+    """Load PTB raw data from data directory "data_path".
+    
+      Reads PTB text files, converts strings to integer ids,
+      and performs mini-batching of the inputs.
+      
+      The PTB dataset comes from Tomas Mikolov's webpage:
+      http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz
+      
+      Args:
+        data_path: string path to the directory where simple-examples.tgz has
+          been extracted.
+      
+      Returns:
+        tuple (train_data, valid_data, test_data, vocabulary)
+        where each of the data objects can be passed to PTBIterator.
+  """
+  
+  
