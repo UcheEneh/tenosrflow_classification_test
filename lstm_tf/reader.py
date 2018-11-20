@@ -30,9 +30,10 @@ def _build_vocab(filename):
     count_pairs = sorted(counter.items(), key=lambda x: (-x[1], x[0]))  #counter.items() will return a list of tuples, 
                                                 #tuple is (key, value), in descending order of value, in ascending order of keys
                                                 
-    words, _ = list(zip(*count_pairs))  #put it in a list
+    words, _ = list(zip(*count_pairs))  #put it in a list    #e.g: { ("hello":12), ("world":11), ...
+                                        #key: (words: "hello"), value: (_: 12)
     word_to_id = dict(zip(words, range(len(words)))) #create a dict in (value descending, key ascending), using id btw (0-len(words))
-    #e.g: { (("hello":12), 0), (("world":11), 1), ...
+    #e.g: { ("hello", 0), ("world", 1), ...
     # dic: {key: word, value: id}     
     #hello appears 12 times and is the most appearing, so it gets id of 0,...
     
@@ -95,10 +96,21 @@ def ptb_producer(raw_data, batch_size, num_steps, name=None):
     """
     
     with tf.name_scope(name, "PTBProducer", [raw_data, batch_size, num_steps]):
+        #raw_data: dict of tuples for a dataset e.g. train_data
+        #e.g: { ("hello", 0), ("world", 1), ...
         raw_data = tf.convert_to_tensor(raw_data, name="raw_data", dtype=tf.int32)
         
         data_len = tf.size(raw_data)
         batch_len = data_len // batch_size
+        data = tf.reshape(raw_data[0: batch_size * batch_len], [batch_size, batch_len])
+        #note: (batch_size * batch_len) was used instead of data_len incase of floating points
+        # i.e. in case there are less values in data_len than in (batch_size * batch_len)
+        
+        epoch_size = (batch_len - 1) // num_steps
+        #num_steps = num of rolls the batches would be inputed: (basically, number of inputs for the lstm)
+        #NOT SURE EXACTLY. CHECK LATER
+        
+        
         
     
     
