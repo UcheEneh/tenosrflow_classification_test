@@ -32,7 +32,7 @@ def _build_vocab(filename):
                                                 
     words, _ = list(zip(*count_pairs))  #put it in a list
     word_to_id = dict(zip(words, range(len(words)))) #create a dict in (value descending, key ascending), using id btw (0-len(words))
-    #e.g: { ((hello:12), 0), ((world:11), 1), ...
+    #e.g: { (("hello":12), 0), (("world":11), 1), ...
     # dic: {key: word, value: id}     
     #hello appears 12 times and is the most appearing, so it gets id of 0,...
     
@@ -59,6 +59,47 @@ def ptb_raw_data(data_path=None):
       Returns:
         tuple (train_data, valid_data, test_data, vocabulary)
         where each of the data objects can be passed to PTBIterator.
-  """
-  
-  
+    """
+    
+    train_path = os.path.join(data_path, "ptb.train.txt")
+    valid_path = os.path.join(data_path, "ptb.valid.txt")
+    test_path = os.path.join(data_path, "ptb.test.txt")
+    
+    word_to_id = _build_vocab(train_path)   #for full vocabulary
+    train_data = _file_to_word_ids(train_path, word_to_id)      #remember: it returns only words in the word_to_id (full vocab)
+                                                                #basically: train_data has same length as full vocab (word_to_id)
+    valid_data = _file_to_word_ids(valid_path, word_to_id)
+    test_data = _file_to_word_ids(test_path, word_to_id)
+    vocabulary = len(word_to_id)
+    
+    return train_data, valid_data, test_data, vocabulary
+
+def ptb_producer(raw_data, batch_size, num_steps, name=None):
+    """Iterate on the raw PTB data.
+        
+        This chunks up raw_data into batches of examples and returns Tensors that
+        are drawn from these batches.
+        
+        Args:
+          raw_data: one of the raw data outputs from ptb_raw_data.
+          batch_size: int, the batch size.
+          num_steps: int, the number of unrolls.
+          name: the name of this operation (optional).
+        
+        Returns:
+          A pair of Tensors, each shaped [batch_size, num_steps]. The second element
+          of the tuple is the same data time-shifted to the right by one.
+        
+        Raises:
+          tf.errors.InvalidArgumentError: if batch_size or num_steps are too high.    
+    """
+    
+    with tf.name_scope(name, "PTBProducer", [raw_data, batch_size, num_steps]):
+        raw_data = tf.convert_to_tensor(raw_data, name="raw_data", dtype=tf.int32)
+        
+        data_len = tf.size(raw_data)
+        batch_len = data_len // batch_size
+        
+    
+    
+      
